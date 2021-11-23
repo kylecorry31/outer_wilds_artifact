@@ -1,7 +1,7 @@
 int lastPower = 0;
 bool on = false;
 bool wasLight = false;
-int startTime = 0;
+bool onCycleComplete = false;
 
 void setup() {
   pinMode(11, OUTPUT); // Blue
@@ -11,7 +11,7 @@ void setup() {
   pinMode(3, OUTPUT); // LDR power
   pinMode(2, OUTPUT); // Mic power
   Serial.begin(9600);
-
+  Serial.println("START");
   turn_off();
 }
 
@@ -24,10 +24,12 @@ void loop() {
 }
 
 void off_mode(){
-  int light_threshold = 120;
-  int dark_threshold = 80;
+  int light_threshold = 400;
+  int dark_threshold = 200;
   int light = analogRead(A1);
-  Serial.println(light);
+  Serial.print(light);
+  Serial.print(" ");
+  Serial.println(wasLight);
 
   if (light > light_threshold){
     wasLight = true;
@@ -42,14 +44,16 @@ void off_mode(){
 }
 
 void turn_on(){
+  Serial.println("ON");
   lastPower = 0;
-  startTime = millis();
+  onCycleComplete = false;
   on = true;
   digitalWrite(3, false);
   digitalWrite(2, true);
 }
 
 void turn_off(){
+  Serial.println("OFF");
   wasLight = false;
   on = false;
   digitalWrite(3, true);
@@ -61,8 +65,10 @@ void turn_off(){
 void on_mode(){
   int amount = 60;
   int maxPower = 40;
-  int waitTime = 250;
-  int offThreshold = 950;
+  int blueMaxPower = 20;
+  int waitTime = 100;
+  int offThreshold = 900;
+  int micTime = 2000;
   
   int power = min(maxPower - (amount / 100.0 * maxPower) + random(0, amount), maxPower);
   int current = lastPower;
@@ -71,15 +77,21 @@ void on_mode(){
   for (int i = 0; i < waitTime; i++){
     float pct = i / (float)waitTime;
     int current = lastPower + pct * delta;
-    analogWrite(11, current);
+    analogWrite(11, map(current, 0, maxPower, 0, blueMaxPower));
     analogWrite(10, current);
     int mic = analogRead(A2);
     Serial.println(mic);
-    if ((millis() - startTime) > 1000 && mic > offThreshold){
+    if (mic > offThreshold && onCycleComplete){
       turn_off();
       return;
     }
     delay(1);
   }
   lastPower = power;
+
+  if (!onCycleComplete){
+    delay(micTime);
+  }
+  
+  onCycleComplete = true;
 }
