@@ -1,14 +1,15 @@
 int lastPower = 0;
 bool on = false;
 bool wasLight = false;
+int startTime = 0;
 
 void setup() {
   pinMode(11, OUTPUT); // Blue
   pinMode(10, OUTPUT); // Green
-  pinMode(A0, INPUT); // Mic
+  pinMode(A2, INPUT); // Mic
   pinMode(A1, INPUT); // LDR
-  pinMode(2, OUTPUT); // LDR power
-  pinMode(3, OUTPUT); // Mic power
+  pinMode(3, OUTPUT); // LDR power
+  pinMode(2, OUTPUT); // Mic power
   Serial.begin(9600);
 
   turn_off();
@@ -42,16 +43,17 @@ void off_mode(){
 
 void turn_on(){
   lastPower = 0;
+  startTime = millis();
   on = true;
-  digitalWrite(2, false);
-  digitalWrite(3, true);
+  digitalWrite(3, false);
+  digitalWrite(2, true);
 }
 
 void turn_off(){
   wasLight = false;
   on = false;
-  digitalWrite(2, true);
-  digitalWrite(3, false);
+  digitalWrite(3, true);
+  digitalWrite(2, false);
   digitalWrite(11, false);
   digitalWrite(10, false);
 }
@@ -60,7 +62,7 @@ void on_mode(){
   int amount = 60;
   int maxPower = 40;
   int waitTime = 250;
-  int offThreshold = 650;
+  int offThreshold = 950;
   
   int power = min(maxPower - (amount / 100.0 * maxPower) + random(0, amount), maxPower);
   int current = lastPower;
@@ -71,9 +73,9 @@ void on_mode(){
     int current = lastPower + pct * delta;
     analogWrite(11, current);
     analogWrite(10, current);
-    int mic = analogRead(A0);
+    int mic = analogRead(A2);
     Serial.println(mic);
-    if (mic > offThreshold){
+    if ((millis() - startTime) > 1000 && mic > offThreshold){
       turn_off();
       return;
     }
