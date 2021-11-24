@@ -24,8 +24,8 @@ void loop() {
 }
 
 void off_mode(){
-  int light_threshold = 400;
-  int dark_threshold = 200;
+  int light_threshold = 300;
+  int dark_threshold = 125;
   int light = analogRead(A1);
   Serial.print(light);
   Serial.print(" ");
@@ -64,8 +64,8 @@ void turn_off(){
 
 void on_mode(){
   int amount = 60;
-  int maxPower = 40;
-  int blueMaxPower = 20;
+  int maxPower = 30;
+  int blueMaxPower = 10;
   int waitTime = 100;
   int offThreshold = 900;
   int micTime = 2000;
