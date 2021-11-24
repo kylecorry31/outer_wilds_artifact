@@ -1,3 +1,5 @@
+#include <LowPower.h>
+
 int lastPower = 0;
 bool on = false;
 bool wasLight = false;
@@ -23,13 +25,16 @@ void loop() {
   }
 }
 
+
 void off_mode(){
+  digitalWrite(2, true);
   int light_threshold = 300;
   int dark_threshold = 125;
   int light = analogRead(A1);
   Serial.print(light);
   Serial.print(" ");
   Serial.println(wasLight);
+  delay(20);
 
   if (light > light_threshold){
     wasLight = true;
@@ -39,8 +44,8 @@ void off_mode(){
     turn_on();
     return;
   }
-  
-  delay(1);
+  digitalWrite(2, false);
+  LowPower.powerDown(SLEEP_500MS, ADC_OFF, BOD_OFF);
 }
 
 void turn_on(){
