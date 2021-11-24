@@ -1,9 +1,4 @@
-#include <LowPower.h>
-
-int lastPower = 0;
-bool on = false;
-bool wasLight = false;
-bool onCycleComplete = false;
+int state = 0;
 
 void setup() {
   pinMode(10, OUTPUT); // Blue
@@ -12,91 +7,39 @@ void setup() {
   pinMode(A1, INPUT); // LDR
   pinMode(3, OUTPUT); // LDR power
   pinMode(2, OUTPUT); // Mic power
-  Serial.begin(9600);
-  Serial.println("START");
-  turn_off();
+  digitalWrite(3, true);
+  digitalWrite(2, true);
 }
 
 void loop() {
-  if (on){
-    on_mode();
-  } else {
-    off_mode();
+  if (state == 0){
+    off_1();
+  } else if (state == 1){
+    off_2();
+  } else if (state == 2){
+    on();
   }
-}
-
-
-void off_mode(){
-  digitalWrite(2, true);
-  int light_threshold = 300;
-  int dark_threshold = 125;
-  int light = analogRead(A1);
-  Serial.print(light);
-  Serial.print(" ");
-  Serial.println(wasLight);
   delay(20);
-
-  if (light > light_threshold){
-    wasLight = true;
-  }
-  
-  if (wasLight && light < dark_threshold){
-    turn_on();
-    return;
-  }
-  digitalWrite(2, false);
-  LowPower.powerDown(SLEEP_500MS, ADC_OFF, BOD_OFF);
 }
 
-void turn_on(){
-  Serial.println("ON");
-  lastPower = 0;
-  onCycleComplete = false;
-  on = true;
-  digitalWrite(3, false);
-  digitalWrite(2, true);
-}
-
-void turn_off(){
-  Serial.println("OFF");
-  wasLight = false;
-  on = false;
-  digitalWrite(3, true);
-  digitalWrite(2, false);
-  digitalWrite(11, false);
+void off_1(){
   digitalWrite(10, false);
+  digitalWrite(11, false);
+  if (analogRead(A1) > 300){
+    state = 1;  
+  }
 }
 
-void on_mode(){
-  int amount = 60;
-  int maxPower = 30;
-  int blueMaxPower = 5;
-  int waitTime = 100;
-  int offThreshold = 900;
-  int micTime = 2000;
-  
-  int power = min(maxPower - (amount / 100.0 * maxPower) + random(0, amount), maxPower);
-  int current = lastPower;
-  int delta = power - lastPower;
-
-  for (int i = 0; i < waitTime; i++){
-    float pct = i / (float)waitTime;
-    int current = lastPower + pct * delta;
-    analogWrite(10, map(current, 0, maxPower, 0, blueMaxPower));
-    analogWrite(11, current);
-    int mic = analogRead(A2);
-    Serial.println(mic);
-    if (mic > offThreshold && onCycleComplete){
-      turn_off();
-      return;
-    }
-    delay(1);
+void off_2(){
+  if (analogRead(A1) < 125){
+    state = 2;  
   }
-  lastPower = power;
+}
 
-  if (!onCycleComplete){
-    delay(micTime);
+void on(){
+  analogWrite(10, 5);
+  analogWrite(11, 30);
+  if (analogRead(A2) > 900){
+    state = 0;
   }
-  
-  onCycleComplete = true;
 }
