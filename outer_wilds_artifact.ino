@@ -6,8 +6,8 @@ bool wasLight = false;
 bool onCycleComplete = false;
 
 void setup() {
-  pinMode(11, OUTPUT); // Blue
-  pinMode(10, OUTPUT); // Green
+  pinMode(10, OUTPUT); // Blue
+  pinMode(11, OUTPUT); // Green
   pinMode(A2, INPUT); // Mic
   pinMode(A1, INPUT); // LDR
   pinMode(3, OUTPUT); // LDR power
@@ -70,7 +70,7 @@ void turn_off(){
 void on_mode(){
   int amount = 60;
   int maxPower = 30;
-  int blueMaxPower = 10;
+  int blueMaxPower = 5;
   int waitTime = 100;
   int offThreshold = 900;
   int micTime = 2000;
@@ -82,8 +82,8 @@ void on_mode(){
   for (int i = 0; i < waitTime; i++){
     float pct = i / (float)waitTime;
     int current = lastPower + pct * delta;
-    analogWrite(11, map(current, 0, maxPower, 0, blueMaxPower));
-    analogWrite(10, current);
+    analogWrite(10, map(current, 0, maxPower, 0, blueMaxPower));
+    analogWrite(11, current);
     int mic = analogRead(A2);
     Serial.println(mic);
     if (mic > offThreshold && onCycleComplete){
