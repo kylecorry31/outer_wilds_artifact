@@ -1,5 +1,3 @@
-#include "LowPower.h"
-
 int state = 0;
 int light_pin = 13;
 int mic_pin = A0;
@@ -28,11 +26,8 @@ void loop() {
   } else if (state == 2){
     on();
   }
-  if (!should_print){
-    LowPower.powerDown(SLEEP_30MS, ADC_OFF, BOD_OFF);
-  } else {
-    delay(30);
-  }
+  
+  delay(20);
 }
 
 void off_1(){
