@@ -5,8 +5,8 @@ int ldr_pin = A2;
 
 bool should_print = false;
 
-int light_threshold = 60;
-int dark_threshold = 40;
+int light_threshold = 30;
+int dark_threshold = 10;
 int mic_threshold = 450;
 
 void setup() {
@@ -59,6 +59,7 @@ void on(){
   }
   digitalWrite(light_pin, true);
   if (mic == 0 || mic > mic_threshold){
+    digitalWrite(light_pin, false);
     state = 0;
   }
 }
